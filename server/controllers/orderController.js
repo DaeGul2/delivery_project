@@ -47,7 +47,7 @@ const createOrder = async (req, res) => {
   const params = riderNumbers.map(riderNumber => ({
     text: orderText,
     to: riderNumber,
-    from: customerNumber,
+    from: '01064400583',
   }));
 
   // 메시지 전송

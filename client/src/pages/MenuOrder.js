@@ -127,7 +127,7 @@ function MenuOrder() {
         {menuItems.map(item => (
           <Col key={item._id} sm={12} md={6} lg={4} className="mb-4">
             <Card>
-              <Card.Img variant="top" src={`http://localhost:8080${item.menuPicturePath}`} alt={item.menuName} />
+              <Card.Img variant="top" src={`${process.env.REACT_APP_API_URL}${item.menuPicturePath}`} alt={item.menuName} />
               <Card.Body>
                 <Card.Title>{item.menuName}</Card.Title>
                 <Card.Text>{item.menuDescription}</Card.Text>
@@ -160,7 +160,7 @@ function MenuOrder() {
         <Modal.Body>
           <Form>
             <Form.Group controlId="formName">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>주문자 이름</Form.Label>
               <Form.Control
                 type="text"
                 value={orderDetails.name}
@@ -172,7 +172,7 @@ function MenuOrder() {
               {errors.name && <div className="text-danger">{errors.name}</div>}
             </Form.Group>
             <Form.Group controlId="formContact" className="mt-3">
-              <Form.Label>Contact</Form.Label>
+              <Form.Label>주문자 번호</Form.Label>
               <Form.Control
                 type="text"
                 value={orderDetails.contact}
@@ -190,7 +190,7 @@ function MenuOrder() {
               />
             </Form.Group>
             <Form.Group controlId="formLocation" className="mt-3">
-              <Form.Label>Location</Form.Label>
+              <Form.Label>배달받을 장소</Form.Label>
               <Form.Control
                 type="text"
                 value={orderDetails.location}
@@ -203,12 +203,12 @@ function MenuOrder() {
           <ul>
             {cart.map((item, index) => (
               <li key={index}>
-                {item.menuName} - {item.quantity} x ${item.menuPrice} = ${item.quantity * item.menuPrice}
+                {item.menuName} - {item.quantity}개 x {item.menuPrice}원 = {item.quantity * item.menuPrice}원
                 <Button variant="danger" size="sm" onClick={() => handleRemoveFromCart(index)}>Remove</Button>
               </li>
             ))}
           </ul>
-          <h4>Total: ${getTotalPrice()}</h4>
+          <h4>Total: {getTotalPrice()}원</h4>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>

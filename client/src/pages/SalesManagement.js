@@ -84,6 +84,9 @@ function SalesManagement() {
                     <strong>주문시간: </strong> {moment(order.createdAt).format('YYYY-MM-DD HH:mm:ss')}
                   </ListGroup.Item>
                   <ListGroup.Item>
+                    <strong>주문자 번호: </strong> {order.customerNumber}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
                     <strong>출발시간: </strong> {order.isDone ? moment(order.updatedAt).format('YYYY-MM-DD HH:mm:ss') : '출발 전'}
                   </ListGroup.Item>
                   <ListGroup.Item>
