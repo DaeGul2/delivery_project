@@ -8,6 +8,7 @@ const multer = require('multer');
 const cors = require('cors');
 const menuRoutes = require('./routes/menuRoutes');
 const riderRoutes = require('./routes/riderRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 // .env 파일의 내용을 불러오기
 dotenv.config();
@@ -52,6 +53,7 @@ const upload = multer({ storage });
 // 라우트 설정 (multer 미들웨어 추가)
 app.use('/api/menus', upload.single('menuPicture'), menuRoutes);
 app.use('/api/riders', riderRoutes);
+app.use('/api/orders', orderRoutes);
 
 // 기본 라우트 설정
 app.get('/', (req, res) => {

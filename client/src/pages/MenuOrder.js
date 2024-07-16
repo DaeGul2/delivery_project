@@ -1,4 +1,3 @@
-// src/pages/MenuOrder.js
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +8,8 @@ function MenuOrder() {
   const [menuItems, setMenuItems] = useState([]);
   const [cart, setCart] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [orderDetails, setOrderDetails] = useState({ name: '', contact: '', message: '' });
+  const [orderDetails, setOrderDetails] = useState({ name: '', contact: '', message: '', location: '' });
+  const [errors, setErrors] = useState({ name: '', contact: '', location: '' });
 
   useEffect(() => {
     // Fetch menu items from the server
@@ -41,16 +41,81 @@ function MenuOrder() {
     setCart(newCart);
   };
 
-  const handleOrder = () => {
-    // Simulating an order submission
-    alert('Order placed successfully!');
-    setCart([]);
-    setOrderDetails({ name: '', contact: '', message: '' });
-    setShowModal(false);
+  const handleOrder = async () => {
+    if (cart.length === 0) {
+      alert('장바구니가 비어 있습니다. 주문할 항목을 추가해주세요.');
+      return;
+    }
+    // 주문 데이터 준비
+    const orderData = {
+      customerName: orderDetails.name,
+      orderList: cart.map(item => ({
+        menuId: item._id,
+        count: item.quantity,
+        price: item.menuPrice // 각 항목에 price 필드를 추가
+      })),
+      destination: orderDetails.location,
+      customerNumber: orderDetails.contact,
+      memo: orderDetails.message
+    };
+
+    // 서버로 주문 데이터 전송
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/orders`, orderData);
+      alert('Order placed successfully!');
+      setCart([]);
+      setOrderDetails({ name: '', contact: '', message: '', location: '' });
+      setShowModal(false);
+    } catch (error) {
+      console.error('Error placing order', error);
+      alert('Failed to place order');
+    }
   };
 
   const getTotalPrice = () => {
     return cart.reduce((total, item) => total + (item.menuPrice * item.quantity), 0);
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { name: '', contact: '', location: '' };
+
+    // 이름 검증
+    if (orderDetails.name.length < 2) {
+      newErrors.name = '이름은 2글자 이상이어야합니다';
+      isValid = false;
+    }
+    if (orderDetails.name.length > 4) {
+      newErrors.name = '이름은 4글자 이하이어야합니다';
+      isValid = false;
+    }
+
+    // 위치 검증
+    const trimmedLocation = orderDetails.location.trim();
+    if (trimmedLocation.length < 1) {
+      newErrors.location = '최소 1글자 이상이어야됩니다';
+      isValid = false;
+    }
+    if (trimmedLocation.length > 50) {
+      newErrors.location = '최대 50글자까지 적을 수 있습니다';
+      isValid = false;
+    }
+
+    // 연락처 검증
+    const cleanedContact = orderDetails.contact.replace(/\D/g, ''); // 숫자만 남기기
+    if (cleanedContact.length !== 11) {
+      newErrors.contact = '-를 빼고 핸드폰번호 11글자 넣어야됩니다';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleOrderClick = () => {
+    if (validateForm()) {
+      handleOrder();
+    }
   };
 
   return (
@@ -97,18 +162,23 @@ function MenuOrder() {
               <Form.Control
                 type="text"
                 value={orderDetails.name}
-                onChange={(e) => setOrderDetails({ ...orderDetails, name: e.target.value })}
+                onChange={(e) => {
+                  const value = e.target.value.slice(0, 4);
+                  setOrderDetails({ ...orderDetails, name: value });
+                }}
               />
+              {errors.name && <div className="text-danger">{errors.name}</div>}
             </Form.Group>
-            <Form.Group controlId="formContact">
+            <Form.Group controlId="formContact" className="mt-3">
               <Form.Label>Contact</Form.Label>
               <Form.Control
                 type="text"
                 value={orderDetails.contact}
                 onChange={(e) => setOrderDetails({ ...orderDetails, contact: e.target.value })}
               />
+              {errors.contact && <div className="text-danger">{errors.contact}</div>}
             </Form.Group>
-            <Form.Group controlId="formMessage">
+            <Form.Group controlId="formMessage" className="mt-3">
               <Form.Label>Message</Form.Label>
               <Form.Control
                 as="textarea"
@@ -116,6 +186,15 @@ function MenuOrder() {
                 value={orderDetails.message}
                 onChange={(e) => setOrderDetails({ ...orderDetails, message: e.target.value })}
               />
+            </Form.Group>
+            <Form.Group controlId="formLocation" className="mt-3">
+              <Form.Label>Location</Form.Label>
+              <Form.Control
+                type="text"
+                value={orderDetails.location}
+                onChange={(e) => setOrderDetails({ ...orderDetails, location: e.target.value })}
+              />
+              {errors.location && <div className="text-danger">{errors.location}</div>}
             </Form.Group>
           </Form>
           <h3 className="mt-4">Cart</h3>
@@ -131,7 +210,7 @@ function MenuOrder() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-          <Button variant="primary" onClick={handleOrder}>Place Order</Button>
+          <Button variant="primary" onClick={handleOrderClick}>Place Order</Button>
         </Modal.Footer>
       </Modal>
     </Container>
