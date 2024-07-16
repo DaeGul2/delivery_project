@@ -1,0 +1,48 @@
+/* src/App.css */
+.App {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  text-align: left;
+}
+
+.card-title {
+  font-size: 1.25rem;
+}
+
+.card-text {
+  margin-bottom: 10px;
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.quantity-selector span {
+  margin: 0 10px;
+  font-size: 1.2rem;
+}
+
+.cart-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
+}
+
+.cart-icon .badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+}
