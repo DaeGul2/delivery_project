@@ -41,7 +41,7 @@ const createOrder = async (req, res) => {
     orderDic[menu.menuName] = item.count;
   }
 
-  const orderText = `주문번호 : ${orderNumber}\n주문자 이름 : ${customerName}\n주문 내역 : ${Object.entries(orderDic).map(([key, value]) => `${key} - ${value}개`).join(', ')}\n주문장소 : ${destination}\n주문자 번호 : ${customerNumber}\n전체 가격 : ${totalPrice}`;
+  const orderText = `주문번호 : ${orderNumber}\n주문자 이름 : ${customerName}\n주문 내역 : ${Object.entries(orderDic).map(([key, value]) => `${key} - ${value}개`).join(', ')}\n주문장소 : ${destination}\n주문자 번호 : ${customerNumber}\n전체 가격 : ${totalPrice}원`;
   // const orderText = '메시지테스트';
   // 메시지 전송 파라미터 준비
   const params = riderNumbers.map(riderNumber => ({
