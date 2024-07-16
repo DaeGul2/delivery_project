@@ -21,7 +21,7 @@ function Home() {
       <Row className="mt-4">
         <Col md={12} className="text-center">
           <Button className="order-button" onClick={() => navigate('/menu-order')}>
-            주문하러가기
+            주문 GOGO
           </Button>
         </Col>
       </Row>

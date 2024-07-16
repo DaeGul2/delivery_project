@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faUtensils } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function MenuOrder() {
@@ -120,7 +121,8 @@ function MenuOrder() {
 
   return (
     <Container>
-      <h1 className="mt-4">Menu + Order Page</h1>
+      
+      <h1 className="mt-4"><FontAwesomeIcon icon={faUtensils} className="me-2" />배달 주문</h1>
       <Row>
         {menuItems.map(item => (
           <Col key={item._id} sm={12} md={6} lg={4} className="mb-4">

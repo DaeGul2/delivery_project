@@ -62,12 +62,12 @@ function App() {
       <div className="App">
         <Navbar bg="dark" variant="dark" expand="lg">
           <Container>
-            <Navbar.Brand href="/">My Project</Navbar.Brand>
+            <Navbar.Brand href="/">청심 포차 & Cafe</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
               <Nav className="me-auto">
-                <Nav.Link href="/">Home</Nav.Link>
-                <Nav.Link href="/menu-order">Menu Order</Nav.Link>
+                <Nav.Link href="/">홈</Nav.Link>
+                <Nav.Link href="/menu-order">배달 주문</Nav.Link>
                 {isAdmin && <AdminLinks />}
               </Nav>
               <Nav>
