@@ -150,7 +150,7 @@ function MenuOrder() {
         ))}
       </Row>
       <div className="cart-icon" onClick={() => setShowModal(true)}>
-        <FontAwesomeIcon icon={faShoppingCart} size="2x" />
+        <FontAwesomeIcon icon={faShoppingCart} size="4x" />
         {cart.length > 0 && <Badge bg="danger">{cart.length}</Badge>}
       </div>
       <Modal show={showModal} onHide={() => setShowModal(false)}>
