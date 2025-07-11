@@ -1,8 +1,8 @@
+// src/pages/MenuOrder.js
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faUtensils } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faUtensils } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function MenuOrder() {
@@ -13,14 +13,9 @@ function MenuOrder() {
   const [errors, setErrors] = useState({ name: '', contact: '', location: '' });
 
   useEffect(() => {
-    // Fetch menu items from the server
     axios.get(`${process.env.REACT_APP_API_URL}/api/menus`)
-      .then(response => {
-        setMenuItems(response.data);
-      })
-      .catch(error => {
-        console.error('There was an error fetching the menu data!', error);
-      });
+      .then(response => setMenuItems(response.data))
+      .catch(error => console.error('There was an error fetching the menu data!', error));
   }, []);
 
   const handleAddToCart = (item, quantity) => {
@@ -47,22 +42,21 @@ function MenuOrder() {
       alert('장바구니가 비어 있습니다. 주문할 항목을 추가해주세요.');
       return;
     }
-    // 주문 데이터 준비
+
     const orderData = {
       customerName: orderDetails.name,
       orderList: cart.map(item => ({
         menuId: item._id,
         count: item.quantity,
-        price: item.menuPrice // 각 항목에 price 필드를 추가
+        price: item.menuPrice
       })),
       destination: orderDetails.location,
       customerNumber: orderDetails.contact,
       memo: orderDetails.message
     };
 
-    // 서버로 주문 데이터 전송
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/orders`, orderData);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/orders`, orderData);
       alert('주문이 정상 접수 되었습니다! 배달 현황 페이지에서 확인할 수 있습니다.');
       setCart([]);
       setOrderDetails({ name: '', contact: '', message: '', location: '' });
@@ -81,7 +75,6 @@ function MenuOrder() {
     let isValid = true;
     const newErrors = { name: '', contact: '', location: '' };
 
-    // 이름 검증
     if (orderDetails.name.length < 2) {
       newErrors.name = '이름은 2글자 이상이어야합니다';
       isValid = false;
@@ -91,7 +84,6 @@ function MenuOrder() {
       isValid = false;
     }
 
-    // 위치 검증
     const trimmedLocation = orderDetails.location.trim();
     if (trimmedLocation.length < 1) {
       newErrors.location = '최소 1글자 이상이어야됩니다';
@@ -102,8 +94,7 @@ function MenuOrder() {
       isValid = false;
     }
 
-    // 연락처 검증
-    const cleanedContact = orderDetails.contact.replace(/\D/g, ''); // 숫자만 남기기
+    const cleanedContact = orderDetails.contact.replace(/\D/g, '');
     if (cleanedContact.length !== 11) {
       newErrors.contact = '-를 빼고 핸드폰번호 11글자 넣어야됩니다';
       isValid = false;
@@ -114,45 +105,52 @@ function MenuOrder() {
   };
 
   const handleOrderClick = () => {
-    if (validateForm()) {
-      handleOrder();
-    }
+    if (validateForm()) handleOrder();
   };
 
   return (
     <Container>
+      <h1 className="mt-4">
+        <FontAwesomeIcon icon={faUtensils} className="me-2" />
+        배달 주문
+      </h1>
 
-      <h1 className="mt-4"><FontAwesomeIcon icon={faUtensils} className="me-2" />배달 주문</h1>
-      <Row>
-        {menuItems.map(item => (
-          <Col key={item._id} sm={12} md={6} lg={4} className="mb-4">
-            <Card>
-              <Card.Img variant="top" src={`${process.env.REACT_APP_API_URL}${item.menuPicturePath}`} alt={item.menuName} />
-              <Card.Body>
-                <Card.Title>{item.menuName}</Card.Title>
-                <Card.Text>{item.menuDescription}</Card.Text>
-                <Card.Text><strong>{item.menuPrice}￦</strong></Card.Text>
-                <Card.Text>
+      {menuItems.length === 0 ? (
+        <p className="text-center mt-5">등록된 메뉴가 없습니다.</p>
+      ) : (
+        <Row>
+          {menuItems.map(item => (
+            <Col key={item._id} sm={12} md={6} lg={4} className="mb-4">
+              <Card>
+                <Card.Img variant="top" src={`${process.env.REACT_APP_API_URL}${item.menuPicturePath}`} alt={item.menuName} />
+                <Card.Body>
+                  <Card.Title>{item.menuName}</Card.Title>
+                  <Card.Text>{item.menuDescription}</Card.Text>
+                  <Card.Text><strong>{item.menuPrice}￦</strong></Card.Text>
+                  <Card.Text>
+                    {item.isValid ? (
+                      <span style={{ color: 'green' }}>판매중</span>
+                    ) : (
+                      <span style={{ color: 'red' }}>품절</span>
+                    )}
+                  </Card.Text>
                   {item.isValid ? (
-                    <span style={{ color: 'green' }}>판매중</span>
+                    <QuantitySelector item={item} onAddToCart={handleAddToCart} />
                   ) : (
-                    <span style={{ color: 'red' }}>품절</span>
+                    <Button variant="secondary" disabled>품절</Button>
                   )}
-                </Card.Text>
-                {item.isValid ? (
-                  <QuantitySelector item={item} onAddToCart={handleAddToCart} />
-                ) : (
-                  <Button variant="secondary" disabled>품절</Button>
-                )}
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-      <div className="cart-icon" onClick={() => setShowModal(true)}>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      <div className="cart-icon" onClick={() => setShowModal(true)} style={{ position: 'fixed', bottom: 30, right: 30, cursor: 'pointer' }}>
         <FontAwesomeIcon icon={faShoppingCart} size="4x" />
         {cart.length > 0 && <Badge bg="danger">{cart.length}</Badge>}
       </div>
+
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Order Details</Modal.Title>
@@ -164,15 +162,12 @@ function MenuOrder() {
               <Form.Control
                 type="text"
                 value={orderDetails.name}
-                onChange={(e) => {
-                  const value = e.target.value.slice(0, 4);
-                  setOrderDetails({ ...orderDetails, name: value });
-                }}
+                onChange={(e) => setOrderDetails({ ...orderDetails, name: e.target.value.slice(0, 4) })}
               />
               {errors.name && <div className="text-danger">{errors.name}</div>}
             </Form.Group>
             <Form.Group controlId="formContact" className="mt-3">
-              <Form.Label>주문자 핸드폰 번호('-'제외 13자리 ex: 01012345678)</Form.Label>
+              <Form.Label>주문자 핸드폰 번호('-' 제외 11자리)</Form.Label>
               <Form.Control
                 placeholder='01012345678'
                 type="text"
@@ -200,12 +195,13 @@ function MenuOrder() {
               {errors.location && <div className="text-danger">{errors.location}</div>}
             </Form.Group>
           </Form>
+
           <h3 className="mt-4">Cart</h3>
           <ul>
             {cart.map((item, index) => (
               <li key={index}>
                 {item.menuName} - {item.quantity}개 x {item.menuPrice}원 = {item.quantity * item.menuPrice}원
-                <Button variant="danger" size="sm" onClick={() => handleRemoveFromCart(index)}>Remove</Button>
+                <Button variant="danger" size="sm" className="ms-2" onClick={() => handleRemoveFromCart(index)}>삭제</Button>
               </li>
             ))}
           </ul>
@@ -222,15 +218,14 @@ function MenuOrder() {
 
 function QuantitySelector({ item, onAddToCart }) {
   const [quantity, setQuantity] = useState(1);
-
   const increment = () => setQuantity(quantity + 1);
   const decrement = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
 
   return (
     <>
-      <div className="quantity-selector">
+      <div className="quantity-selector mb-2">
         <Button variant="secondary" size="sm" onClick={decrement}>-</Button>
-        <span>{quantity}</span>
+        <span className="mx-2">{quantity}</span>
         <Button variant="secondary" size="sm" onClick={increment}>+</Button>
       </div>
       <Button variant="primary" onClick={() => onAddToCart(item, quantity)}>Add to Cart</Button>
