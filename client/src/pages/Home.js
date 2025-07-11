@@ -11,7 +11,7 @@ function Home() {
     <Col md={12}>
       <img
         className="d-block w-100 carousel-image"
-        src="/images/logo.jpg"
+        src="/images/logo2.png"
         alt="First slide"
         onClick={() => navigate('/menu-order')}
       />
