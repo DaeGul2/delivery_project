@@ -69,9 +69,10 @@ const deleteMenu = async (req, res) => {
     const menu = await Menu.findById(req.params.id);
     if (!menu) return res.status(404).json({ message: '메뉴를 찾을 수 없습니다.' });
 
-    await menu.remove();
+    await Menu.deleteOne({ _id: req.params.id }); // ✅ 안전한 방식
     res.status(200).json({ message: '메뉴가 삭제되었습니다.' });
   } catch (err) {
+    console.error(err); // 디버깅 로그 추가
     res.status(500).json({ message: err.message });
   }
 };

@@ -84,26 +84,26 @@ const createOrder = async (req, res) => {
 
 const getAllOrders = async (req, res) => {
   try {
-    // 주문 목록을 불러오고 orderList.menuId를 populate
-    const orders = await Order.find().populate('orderList.menuId');
+    // 전체 주문 조회 + orderList.menuId 안전하게 populate
+    const orders = await Order.find().populate({
+      path: 'orderList.menuId',
+      select: 'menuName menuPrice', // 필요한 필드만 선택 (선택 사항)
+      strictPopulate: false, // 메뉴 없을 경우 에러 없이 undefined로 둠
+    });
 
-    // 주문 목록을 변환하여 orderList에 menuName을 추가
-    const ordersWithMenuNames = orders.map(order => {
-      const orderListWithNames = order.orderList.map(item => {
-        return {
-          ...item._doc,
-          menuName: item.menuId.menuName, // menuId가 populate 되어 있으므로 menuName을 추가
-        };
-      });
+    // 삭제된 메뉴가 undefined인 경우 필터링해서 제거
+    const filteredOrders = orders.map(order => {
+      const filteredList = order.orderList.filter(item => item.menuId);
       return {
-        ...order._doc,
-        orderList: orderListWithNames,
+        ...order.toObject(), // Mongoose 문서 → 일반 객체로 변환
+        orderList: filteredList,
       };
     });
 
-    res.status(200).json(ordersWithMenuNames);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(200).json(filteredOrders);
+  } catch (error) {
+    console.error('Error in getAllOrders:', error.message);
+    res.status(500).json({ message: '서버 오류 발생' });
   }
 };
 

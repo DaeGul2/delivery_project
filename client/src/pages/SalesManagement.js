@@ -10,10 +10,8 @@ function SalesManagement() {
   const [salesStatistics, setSalesStatistics] = useState([]);
 
   useEffect(() => {
-    // Fetch orders from the server
     axios.get(`${process.env.REACT_APP_API_URL}/api/orders`)
       .then(response => {
-        // 주문 시각 기준으로 가장 최근 주문이 위로 오도록 정렬
         const sortedOrders = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setOrders(sortedOrders);
       })
@@ -38,18 +36,24 @@ function SalesManagement() {
     const stats = {};
     orders.forEach(order => {
       order.orderList.forEach(item => {
-        if (!stats[item.menuName]) {
-          stats[item.menuName] = { count: 0, total: 0 };
+        const name = item.menuId?.menuName;
+        const price = item.menuId?.menuPrice;
+        if (!name || !price) return; // 삭제된 메뉴 무시
+
+        if (!stats[name]) {
+          stats[name] = { count: 0, total: 0 };
         }
-        stats[item.menuName].count += item.count;
-        stats[item.menuName].total += item.count * item.price;
+        stats[name].count += item.count;
+        stats[name].total += item.count * price;
       });
     });
-    const statsArray = Object.keys(stats).map(menuName => ({
-      menuName,
-      count: stats[menuName].count,
-      total: stats[menuName].total,
+
+    const statsArray = Object.keys(stats).map(name => ({
+      menuName: name,
+      count: stats[name].count,
+      total: stats[name].total,
     }));
+
     setSalesStatistics(statsArray);
     setShowModal(true);
   };
@@ -69,10 +73,12 @@ function SalesManagement() {
                 <Card.Subtitle className="mb-2 text-muted">고객명: {order.customerName}</Card.Subtitle>
                 <ListGroup variant="flush">
                   <ListGroup.Item>
-                    <strong>내역: </strong> 
-                    {order.orderList.map(item => (
-                      <div key={item.menuName}>{item.menuName} {item.count}개</div>
-                    ))}
+                    <strong>내역: </strong>
+                    {order.orderList.map((item, idx) =>
+                      item.menuId ? (
+                        <div key={idx}>{item.menuId.menuName} {item.count}개</div>
+                      ) : null
+                    )}
                   </ListGroup.Item>
                   <ListGroup.Item>
                     <strong>배달 장소: </strong> {order.destination}

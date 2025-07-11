@@ -63,7 +63,7 @@ function MenuOrder() {
     // 서버로 주문 데이터 전송
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/orders`, orderData);
-      alert('Order placed successfully!');
+      alert('주문이 정상 접수 되었습니다! 배달 현황 페이지에서 확인할 수 있습니다.');
       setCart([]);
       setOrderDetails({ name: '', contact: '', message: '', location: '' });
       setShowModal(false);
@@ -121,7 +121,7 @@ function MenuOrder() {
 
   return (
     <Container>
-      
+
       <h1 className="mt-4"><FontAwesomeIcon icon={faUtensils} className="me-2" />배달 주문</h1>
       <Row>
         {menuItems.map(item => (
@@ -131,7 +131,7 @@ function MenuOrder() {
               <Card.Body>
                 <Card.Title>{item.menuName}</Card.Title>
                 <Card.Text>{item.menuDescription}</Card.Text>
-                <Card.Text><strong>${item.menuPrice}</strong></Card.Text>
+                <Card.Text><strong>{item.menuPrice}￦</strong></Card.Text>
                 <Card.Text>
                   {item.isValid ? (
                     <span style={{ color: 'green' }}>판매중</span>
@@ -172,8 +172,9 @@ function MenuOrder() {
               {errors.name && <div className="text-danger">{errors.name}</div>}
             </Form.Group>
             <Form.Group controlId="formContact" className="mt-3">
-              <Form.Label>주문자 번호</Form.Label>
+              <Form.Label>주문자 핸드폰 번호('-'제외 13자리 ex: 01012345678)</Form.Label>
               <Form.Control
+                placeholder='01012345678'
                 type="text"
                 value={orderDetails.contact}
                 onChange={(e) => setOrderDetails({ ...orderDetails, contact: e.target.value })}
@@ -181,7 +182,7 @@ function MenuOrder() {
               {errors.contact && <div className="text-danger">{errors.contact}</div>}
             </Form.Group>
             <Form.Group controlId="formMessage" className="mt-3">
-              <Form.Label>Message</Form.Label>
+              <Form.Label>요청사항</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -190,7 +191,7 @@ function MenuOrder() {
               />
             </Form.Group>
             <Form.Group controlId="formLocation" className="mt-3">
-              <Form.Label>배달받을 장소</Form.Label>
+              <Form.Label>배달받을 장소(명확히 입력)</Form.Label>
               <Form.Control
                 type="text"
                 value={orderDetails.location}
@@ -211,8 +212,8 @@ function MenuOrder() {
           <h4>Total: {getTotalPrice()}원</h4>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-          <Button variant="primary" onClick={handleOrderClick}>Place Order</Button>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>닫기</Button>
+          <Button variant="primary" onClick={handleOrderClick}>주문하기</Button>
         </Modal.Footer>
       </Modal>
     </Container>
