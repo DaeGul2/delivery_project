@@ -9,6 +9,7 @@ import MenuEdit from './pages/MenuEdit';
 import RiderRegister from './pages/RiderRegister';
 import SalesManagement from './pages/SalesManagement';
 import ProtectedRoute from './components/ProtectedRoute';
+import DeliveryStatus from './pages/DeliveryStatus';
 
 function App() {
   const [showModal, setShowModal] = useState(false);
@@ -68,6 +69,7 @@ function App() {
               <Nav className="me-auto">
                 <Nav.Link href="/">홈</Nav.Link>
                 <Nav.Link href="/menu-order">배달 주문</Nav.Link>
+                <Nav.Link href="/delivery-status">배달 현황</Nav.Link>
                 {isAdmin && <AdminLinks />}
               </Nav>
               <Nav>
@@ -84,6 +86,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/menu-order" element={<MenuOrder />} />
+            <Route path="/delivery-status" element={<DeliveryStatus />} />
             <Route 
               path="/menu-edit" 
               element={

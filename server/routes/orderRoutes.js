@@ -7,6 +7,7 @@ const {
   createOrder,
   updateOrder,
   deleteOrder,
+  getOrdersByCustomerNumber 
 } = require('../controllers/orderController');
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.get('/:id', getOrderById);
 router.post('/', createOrder);
 router.put('/:id', updateOrder);
 router.delete('/:id', deleteOrder);
+router.get('/by-customer/:number', getOrdersByCustomerNumber);
 
 module.exports = router;

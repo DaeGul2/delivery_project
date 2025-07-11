@@ -146,10 +146,38 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+
+const getOrdersByCustomerNumber = async (req, res) => {
+  const customerNumber = req.params.number;
+
+  try {
+    const orders = await Order.find({ customerNumber }).populate('orderList.menuId');
+    if (!orders.length) return res.status(404).json({ message: '주문 내역이 없습니다.' });
+
+    const result = orders.map(order => ({
+      orderNumber: order.orderNumber,
+      destination: order.destination,
+      totalPrice: order.totalPrice,
+      isDone: order.isDone,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      orderList: order.orderList.map(item => ({
+        menuName: item.menuId.menuName,
+        count: item.count,
+      })),
+    }));
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getAllOrders,
   getOrderById,
   createOrder,
   updateOrder,
   deleteOrder,
+  getOrdersByCustomerNumber
 };
