@@ -173,11 +173,33 @@ const getOrdersByCustomerNumber = async (req, res) => {
   }
 };
 
+// 실시간 대기 순번 조회
+const getWaitingOrderPosition = async (req, res) => {
+  const { number } = req.params;
+
+  try {
+    // 아직 완료되지 않은 주문들(createdAt 기준 정렬)
+    const waitingOrders = await Order.find({ isDone: false }).sort({ createdAt: 1 });
+
+    // 해당 번호로 주문한 첫 주문 찾기
+    const index = waitingOrders.findIndex(order => order.customerNumber === number);
+
+    if (index === -1) {
+      return res.status(404).json({ message: '현재 처리 중인 주문이 없습니다.' });
+    }
+
+    res.status(200).json({ position: index + 1, totalWaiting: waitingOrders.length });
+  } catch (err) {
+    res.status(500).json({ message: '대기 순번 조회 중 오류 발생', error: err.message });
+  }
+};
+
 module.exports = {
   getAllOrders,
   getOrderById,
   createOrder,
   updateOrder,
   deleteOrder,
-  getOrdersByCustomerNumber
+  getOrdersByCustomerNumber,
+  getWaitingOrderPosition
 };

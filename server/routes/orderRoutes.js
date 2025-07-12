@@ -7,7 +7,8 @@ const {
   createOrder,
   updateOrder,
   deleteOrder,
-  getOrdersByCustomerNumber 
+  getOrdersByCustomerNumber,
+  getWaitingOrderPosition
 } = require('../controllers/orderController');
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.post('/', createOrder);
 router.put('/:id', updateOrder);
 router.delete('/:id', deleteOrder);
 router.get('/by-customer/:number', getOrdersByCustomerNumber);
+router.get('/waiting-position/:number', getWaitingOrderPosition);
 
 module.exports = router;

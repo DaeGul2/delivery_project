@@ -10,6 +10,10 @@ function SalesManagement() {
   const [salesStatistics, setSalesStatistics] = useState([]);
 
   useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = () => {
     axios.get(`${process.env.REACT_APP_API_URL}/api/orders`)
       .then(response => {
         const sortedOrders = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -18,17 +22,36 @@ function SalesManagement() {
       .catch(error => {
         console.error('There was an error fetching the orders!', error);
       });
-  }, []);
+  };
 
   const handleStatusUpdate = (orderId, newStatus) => {
     axios.put(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}`, { isDone: newStatus })
-      .then(response => {
-        setOrders(orders.map(order => order._id === orderId ? { ...order, isDone: newStatus, updatedAt: new Date() } : order));
+      .then(() => {
+        setOrders(prev =>
+          prev.map(order =>
+            order._id === orderId ? { ...order, isDone: newStatus, updatedAt: new Date() } : order
+          )
+        );
         alert('Order status updated successfully');
       })
       .catch(error => {
         console.error('There was an error updating the order status!', error);
         alert('Failed to update order status');
+      });
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    const confirmDelete = window.confirm('정말 이 주문 내역을 삭제하시겠습니까?');
+    if (!confirmDelete) return;
+
+    axios.delete(`${process.env.REACT_APP_API_URL}/api/orders/${orderId}`)
+      .then(() => {
+        setOrders(prev => prev.filter(order => order._id !== orderId));
+        alert('주문이 삭제되었습니다.');
+      })
+      .catch(error => {
+        console.error('Error deleting order:', error);
+        alert('주문 삭제에 실패했습니다.');
       });
   };
 
@@ -38,7 +61,7 @@ function SalesManagement() {
       order.orderList.forEach(item => {
         const name = item.menuId?.menuName;
         const price = item.menuId?.menuPrice;
-        if (!name || !price) return; // 삭제된 메뉴 무시
+        if (!name || !price) return;
 
         if (!stats[name]) {
           stats[name] = { count: 0, total: 0 };
@@ -71,7 +94,7 @@ function SalesManagement() {
               <Card.Body>
                 <Card.Title>주문번호: {order.orderNumber}</Card.Title>
                 <Card.Subtitle className="mb-2 text-muted">고객명: {order.customerName}</Card.Subtitle>
-                <ListGroup variant="flush">
+                <ListGroup variant="flush" className="mb-3">
                   <ListGroup.Item>
                     <strong>내역: </strong>
                     {order.orderList.map((item, idx) =>
@@ -99,13 +122,21 @@ function SalesManagement() {
                     <strong>상태: </strong> {order.isDone ? '배달 완료' : '배달 전'}
                   </ListGroup.Item>
                 </ListGroup>
-                <Button
-                  variant={order.isDone ? 'success' : 'danger'}
-                  onClick={() => handleStatusUpdate(order._id, !order.isDone)}
-                  className="mt-3"
-                >
-                  {order.isDone ? '배달 완료' : '배달 전'}
-                </Button>
+
+                <div className="d-flex justify-content-between">
+                  <Button
+                    variant={order.isDone ? 'success' : 'danger'}
+                    onClick={() => handleStatusUpdate(order._id, !order.isDone)}
+                  >
+                    {order.isDone ? '배달 완료' : '배달 전'}
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    onClick={() => handleDeleteOrder(order._id)}
+                  >
+                    삭제
+                  </Button>
+                </div>
               </Card.Body>
             </Card>
           </Col>
@@ -130,7 +161,7 @@ function SalesManagement() {
                 <tr key={stat.menuName}>
                   <td>{stat.menuName}</td>
                   <td>{stat.count}</td>
-                  <td>{stat.total}원</td>
+                  <td>{stat.total.toLocaleString()}원</td>
                 </tr>
               ))}
               <tr>
@@ -139,7 +170,7 @@ function SalesManagement() {
               </tr>
               <tr>
                 <td><strong>총 수익</strong></td>
-                <td colSpan="2"><strong>{salesStatistics.reduce((acc, stat) => acc + stat.total, 0)}원</strong></td>
+                <td colSpan="2"><strong>{salesStatistics.reduce((acc, stat) => acc + stat.total, 0).toLocaleString()}원</strong></td>
               </tr>
             </tbody>
           </Table>
